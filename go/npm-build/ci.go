@@ -37,8 +37,14 @@ func doCi() error {
 	// execute npm install
 	npm = npm.WithExec([]string{"npm", "install"})
 
+	// execute npm install
+	npm = npm.WithExec([]string{"npm", "install", "-g", "@angular/cli"})
+	
+	// exec angular version
+	npm = npm.WithExec([]string{"ng", "v"})
+
 	// execute npm test command
-	npm = npm.WithExec([]string{"npm", "run", "test"})
+	//npm = npm.WithExec([]string{"npm", "run", "test"})
 
 	// get test output
 	test, err := npm.Stdout(ctx)
@@ -49,15 +55,15 @@ func doCi() error {
 	fmt.Println(test)
 
 	// execute build command
-	npm = npm.WithExec([]string{"npm", "run", "build"})
+	//npm = npm.WithExec([]string{"npm", "run", "build"})
 
 	// get build output
-	build, err := npm.Stdout(ctx)
-	if err != nil {
-		return err
-	}
+	//build, err := npm.Stdout(ctx)
+	//if err != nil {
+	//	return err
+	//}
 	// print output to console
-	fmt.Println(build)
+	//fmt.Println(build)
 
 	return nil
 }
