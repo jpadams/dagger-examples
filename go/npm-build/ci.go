@@ -35,13 +35,13 @@ func doCi() error {
 	npm = npm.WithMountedDirectory("/src", src).WithWorkdir("/src")
 
 	// execute npm install
-	npm = npm.WithExec([]string{"npm", "install"})
-
-	// execute npm install
-	npm = npm.WithExec([]string{"npm", "install", "-g", "@angular/cli"})
+	npm = npm.WithExec([]string{"npm", "install", "-g", "@angular/cli@13"})
 	
 	// exec angular version
 	npm = npm.WithExec([]string{"ng", "v"})
+	
+	// execute npm install
+	npm = npm.WithExec([]string{"npm", "install", "--ci"})
 
 	// execute npm test command
 	//npm = npm.WithExec([]string{"npm", "run", "test"})
