@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"golang.org/x/sync/errgroup"
 
 	"dagger.io/dagger"
 )
@@ -26,21 +27,33 @@ func doCi() error {
 	defer client.Close()
 
 	src := client.Host().Directory(".") // get the projects source directory
+    nodeCache := client.CacheVolume("node") // create a cache volume
 
-	npm := client.Container().From("node"). // initialize new container from npm image
-						WithDirectory("/src", src).WithWorkdir("/src"). // mount source directory to /src
-						WithExec([]string{"npm", "install"}).           // execute npm install
-						WithExec([]string{"npm", "run", "test"})        // execute npm test command
-
-	// get test output
-	test, err := npm.Stdout(ctx)
+	npm, err := client.Container().From("node:18"). // initialize new container from npm image
+		WithDirectory("/src", src, dagger.ContainerWithDirectoryOpts{
+            Exclude: []string{"node_modules/"},
+        }).
+		WithMountedCache("/src/node_modules", nodeCache).
+		WithWorkdir("/src").
+		WithExec([]string{"npm", "install"}).Sync(ctx)  // execute npm install
 	if err != nil {
 		return err
 	}
-	// print output to console
-	fmt.Println(test)
 
-	// execute build command and get build output
+	lint := npm.WithExec([]string{"npm", "run", "lint"})
+	test := npm.WithExec([]string{"npm", "run", "test"})
+
+	eg, gctx := errgroup.WithContext(ctx)
+    eg.Go(func() error {
+        _, err = lint.Sync(gctx) 
+		return err
+    })
+    eg.Go(func() error {
+        _, err = test.Sync(gctx) 
+		return err
+    })
+    eg.Wait()
+
 	build, err := npm.WithExec([]string{"npm", "run", "build"}).Stdout(ctx)
 	if err != nil {
 		return err

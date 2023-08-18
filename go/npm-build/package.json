@@ -4,8 +4,9 @@
   "description": "test",
   "main": "index.js",
   "scripts": {
-    "build": "echo \"Build script would go here\" && exit 0",
-    "test": "echo \"No tests specified\" && exit 0",
+    "build": "echo \"Build starting...\" && sleep 15 && echo \"...Build done!!!\" && exit 0",
+    "test": "echo \"Tests starting...\" && sleep 20 && echo \"...Tests done!\" && exit 0",
+    "lint": "echo \"Linter starting...\" && sleep 10 && echo \"...Linter done!\" && exit 0",
     "start": "node index.js"
   },
   "author": "",
